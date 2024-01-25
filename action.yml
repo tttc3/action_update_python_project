@@ -3,8 +3,8 @@ author: 'Patrick Kidger'
 description: 'Builds a Python projects, runs tests, and if successful tags and uploads to PyPI'
 inputs:
     enabled_features:
-        description: 'A list of the enabled features.'
-        default: ['tag', 'release', 'deploy', 'email']
+        description: 'A comma separated list of the enabled features.'
+        default: "tag, release, deploy, email"
     python-version:
         description: 'The version of Python to use.'
         required: true
@@ -134,7 +134,7 @@ runs:
 
         - name: Tag
           if: |
-              contains('tag', inputs.enabled_features) &&
+              contains(inputs.enabled_features, 'tag') &&
               (steps.get-versions.outputs.new-version == 'true') && (steps.test-sdist.outputs.result == 'true') && (steps.test-bdist-wheel.outputs.result == 'true')
           shell: bash
           run: |
@@ -145,7 +145,7 @@ runs:
 
         - name: GitHub release
           if: |
-              contains('release', inputs.enabled_feature) &&
+              contains(inputs.enabled_features, 'release') &&
               (steps.get-versions.outputs.new-version == 'true') && (steps.test-sdist.outputs.result == 'true') && (steps.test-bdist-wheel.outputs.result == 'true')
           uses: softprops/action-gh-release@v1
           with:
@@ -157,7 +157,7 @@ runs:
 
         - name: Push to PyPI
           if: |
-              contains('deploy', inputs.enabled_features) &&
+              contains(inputs.enabled_features, 'deploy') &&
               (steps.get-versions.outputs.new-version == 'true') && (steps.test-sdist.outputs.result == 'true') && (steps.test-bdist-wheel.outputs.result == 'true')
           uses: pypa/gh-action-pypi-publish@release/v1
           with:
@@ -166,7 +166,7 @@ runs:
 
         - name: Email on success
           if: |
-              contains('email', inputs.enabled_features) &&
+              contains(inputs.enabled_features, 'email') &&
               (steps.get-versions.outputs.new-version == 'true') && (steps.test-sdist.outputs.result == 'true') && (steps.test-bdist-wheel.outputs.result == 'true')
           shell: bash
           run: |
@@ -188,7 +188,7 @@ runs:
 
         - name: Email on failure
           if: |
-              contains('email', inputs.enabled_features) &&
+              contains(inputs.enabled_features, 'email') &&
               (steps.get-versions.outputs.new-version == 'true') && ((steps.test-sdist.outputs.result != 'true') || (steps.test-bdist-wheel.outputs.result != 'true'))
           shell: bash
           run: |
